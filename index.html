@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abandoned but not Forgotten | NASA Platform</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#f7f7f8; --card:#fff; --text:#1a1a1a; --accent:#e87722; --accent2:#c45a10; --border:#e5e5e5; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;line-height:1.6}
+  header{background:#fff;border-bottom:1px solid var(--border);padding:1rem 2rem;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.3rem;color:var(--accent)}
+  nav a{margin-left:1.5rem;text-decoration:none;color:var(--text);font-weight:600}
+  nav a:hover{color:var(--accent)}
+  .hero{text-align:center;padding:4rem 2rem;background:linear-gradient(180deg,#fff,#fff8f0)}
+  .hero h1{font-family:'Space Grotesk',sans-serif;font-size:2.6rem;margin-bottom:.8rem}
+  .hero p{max-width:720px;margin:0 auto 1rem;color:#444}
+  .section{max-width:1200px;margin:0 auto;padding:3rem 1.5rem}
+  .section h2{font-family:'Space Grotesk',sans-serif;font-size:1.9rem;margin-bottom:1.2rem;color:var(--accent2)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.4rem;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+  #map{height:520px;border-radius:10px;border:1px solid var(--border);margin:1rem 0}
+  .tabs{display:flex;gap:.5rem;margin-bottom:.8rem}
+  .tabs button{padding:.5rem 1rem;border:1px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-weight:600}
+  .tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  #viewer{height:460px;background:#f4f4f4;border-radius:10px;border:1px solid var(--border)}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+  @media(max-width:700px){.two-col{grid-template-columns:1fr}}
+  .list li{margin:.4rem 0;padding-left:.8rem;border-left:3px solid var(--accent)}
+  footer{text-align:center;padding:2rem;background:#fff;border-top:1px solid var(--border);font-size:.85rem;color:#666}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">ABANDONED BUT NOT FORGOTTEN</div>
+  <nav>
+    <a href="#purpose">Purpose</a>
+    <a href="#maps">Maps</a>
+    <a href="#models">3D Models</a>
+    <a href="#factors">Factors</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Storytelling NASA's Discarded Equipment</h1>
+  <p>Open interactive platform using NASA public data to locate, visualize, and analyze hardware left on the Moon and Mars. Learn why systems fail and how to prevent it in future missions.</p>
+  <p style="font-size:.9rem;color:#666">NASA Space Apps Challenge 2026 • Team project on GitHub</p>
+</section>
+
+<section class="section" id="purpose">
+  <h2>Platform Goal</h2>
+  <div class="cards">
+    <div class="card"><h3>Locate</h3><p>Interactive zoomable maps of Mars, Moon and Earth showing exact positions of abandoned rovers and landers from open orbital data.</p></div>
+    <div class="card"><h3>Visualize</h3><p>3D models of discarded equipment so users can inspect what remains on the surface today.</p></div>
+    <div class="card"><h3>Analyze</h3><p>Clear lists of failure factors (dust, cold, mechanics, power) and concrete prevention strategies based on real missions.</p></div>
+    <div class="card"><h3>Educate</h3><p>Storytelling layer that turns raw NASA open data into understanding for better future design.</p></div>
+  </div>
+</section>
+
+<section class="section" id="maps">
+  <h2>Interactive Maps</h2>
+  <p>Switch planets. Zoom in to see markers of discarded hardware.</p>
+  <div class="tabs">
+    <button class="active" onclick="setMap('mars')">Mars</button>
+    <button onclick="setMap('moon')">Moon</button>
+    <button onclick="setMap('earth')">Earth</button>
+  </div>
+  <div id="map"></div>
+</section>
+
+<section class="section" id="models">
+  <h2>3D Models of Lost Hardware</h2>
+  <p>Rotate the simplified representations. Real NASA GLB models can be loaded later from public sources.</p>
+  <div id="viewer"></div>
+  <div style="text-align:center;margin-top:1rem">
+    <button onclick="showModel('spirit')">Spirit</button>
+    <button onclick="showModel('insight')">InSight</button>
+    <button onclick="showModel('surveyor')">Surveyor 3</button>
+  </div>
+</section>
+
+<section class="section" id="factors">
+  <h2>Why Equipment Is Abandoned</h2>
+  <div class="two-col">
+    <div>
+      <h3>Main Factors</h3>
+      <ul class="list">
+        <li><b>Dust</b> — Covers solar panels, reduces power. Fine abrasive particles (InSight, Spirit).</li>
+        <li><b>Extreme cold</b> — Lunar nights ~-170°C freeze lubricants and batteries (Surveyor, Apollo).</li>
+        <li><b>Mechanical failure</b> — Wheel motors seize, soft low-gravity sand traps rovers (Spirit at Troy).</li>
+        <li><b>Power loss</b> — No reliable dust cleaning; solar output falls below survival threshold.</li>
+        <li><b>No recovery</b> — Once power dies, communication ends permanently.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>How to Prevent</h3>
+      <ul class="list">
+        <li>Active dust removal: electrodynamic shields, robotic arm sand trickling (InSight technique).</li>
+        <li>Use RTG power instead of solar for multi-year missions.</li>
+        <li>Improved mobility: lower ground pressure wheels, better sand traction models.</li>
+        <li>Cold-tolerant materials, survival heaters, magnetic bearings.</li>
+        <li>Higher redundancy: dual systems, robust hibernation modes.</li>
+        <li>Test in low-gravity sand simulators before launch.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Equipment Catalog</h2>
+  <div class="cards">
+    <div class="card"><h3>Spirit</h3><p>14.57°S, 175.47°E — Troy, Gusev Crater.<br>Stuck 2009, silent 2010. Dragged wheel found silica (ancient water).<br>Remains: panels, cameras, silicon disk with millions of names.</p></div>
+    <div class="card"><h3>InSight</h3><p>4.50°N, 135.62°E — Elysium Planitia.<br>Retired 2022 from dust. Detected marsquakes. Still visible from orbit.<br>Remains: SEIS, HP3, arm, dust-covered panels.</p></div>
+    <div class="card"><h3>Surveyor 3</h3><p>Ocean of Storms (Apollo 12 site).<br>Survived lunar nights. Visited by astronauts 1969. Camera returned to Earth.<br>Remains: structure and scoop.</p></div>
+  </div>
+</section>
+
+<footer>
+  Open platform for NASA Space Apps Challenge 2026. Maps: OpenPlanetaryMap / Leaflet. 3D: Three.js.<br>
+  Deployed on GitHub Pages. Facts from public NASA sources.
+</footer>
+
+<script>
+let map;
+const data = {
+  mars: {
+    center: [0,0], zoom: 2,
+    url: 'https://cartocdn-gusc.global.ssl.fastly.net/opmbuilder/api/v1/map/named/opm-mars-basemap-v0-2/all/{z}/{x}/{y}.png',
+    markers: [{lat:-14.57,lng:175.47,t:'Spirit (Troy)'},{lat:4.5,lng:135.62,t:'InSight'}]
+  },
+  moon: {
+    center: [0,0], zoom: 2,
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    markers: [{lat:-3,lng:-23.4,t:'Surveyor 3 / Apollo 12'}]
+  },
+  earth: {
+    center: [0,0], zoom: 2,
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    markers: [{lat:34.2,lng:-118.2,t:'JPL'}]
+  }
+};
+
+function setMap(type) {
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  if(map) map.remove();
+  const d = data[type];
+  map = L.map('map').setView(d.center, d.zoom);
+  L.tileLayer(d.url, {attribution:'OpenPlanetaryMap / OSM'}).addTo(map);
+  d.markers.forEach(m => L.marker([m.lat,m.lng]).addTo(map).bindPopup(m.t));
+}
+
+// 3D
+let scene, camera, renderer, model;
+function init3D() {
+  const c = document.getElementById('viewer');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xf4f4f4);
+  camera = new THREE.PerspectiveCamera(50, c.clientWidth/c.clientHeight, 0.1, 100);
+  camera.position.set(0,2,5);
+  renderer = new THREE.WebGLRenderer({antialias:true});
+  renderer.setSize(c.clientWidth, c.clientHeight);
+  c.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xffffff,0.6));
+  const dir = new THREE.DirectionalLight(0xffffff,0.8);
+  dir.position.set(5,10,5);
+  scene.add(dir);
+  scene.add(new THREE.GridHelper(8,8,0xddd,0xeee));
+  showModel('spirit');
+  (function anim(){requestAnimationFrame(anim); if(model) model.rotation.y+=0.006; renderer.render(scene,camera);})();
+}
+
+function showModel(type) {
+  if(model) scene.remove(model);
+  model = new THREE.Group();
+  const mat = (c) => new THREE.MeshPhongMaterial({color:c});
+  if(type==='spirit') {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(2,0.35,1.1), mat(0x999)); body.position.y=0.5; model.add(body);
+    for(let x=-1;x<=1;x+=2) for(let z=-0.5;z<=0.5;z+=1) {
+      const w = new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,0.15,12), mat(0x333));
+      w.rotation.z=Math.PI/2; w.position.set(x*0.85,0.28,z); model.add(w);
+    }
+    const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,1.1), mat(0x666)); mast.position.y=1.15; model.add(mast);
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.35,0.15,0.25), mat(0xfff)); head.position.y=1.75; model.add(head);
+  } else if(type==='insight') {
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.9,0.9,0.4,16), mat(0xbbb)); body.position.y=0.4; model.add(body);
+    [-1.6,1.6].forEach(x=>{
+      const p = new THREE.Mesh(new THREE.BoxGeometry(2.2,0.04,1.4), mat(0x336)); p.position.set(x,0.55,0); model.add(p);
+    });
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04,0.04,0.9), mat(0x555)); arm.position.set(0,0.9,0.7); arm.rotation.z=0.4; model.add(arm);
+  } else {
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.9,0.5,0.9), mat(0xccc)); body.position.y=0.5; model.add(body);
+    for(let i=0;i<3;i++){
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.025,1), mat(0x888));
+      const a = i*Math.PI*2/3;
+      leg.position.set(Math.cos(a)*0.55,0.25,Math.sin(a)*0.55);
+      model.add(leg);
+    }
+  }
+  scene.add(model);
+}
+
+window.onload = () => { setMap('mars'); init3D(); };
+</script>
+</body>
+</html>
